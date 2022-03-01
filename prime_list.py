@@ -12,7 +12,7 @@ def is_prime(number):
  def primes():
     limit = eval(input('Enter number: '))
     sequence = []
-    for number in range(2,limit+1):
+    for number in range(2,limit+1): # Since it is inclusive, we have to add 1 to the limit number
         if is_prime(number):
             sequence.append(number)
     
