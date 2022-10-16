@@ -1,17 +1,28 @@
-class Transaction:
-    def __init__(self, trans_number, letter, action):
+class Action:
+    
+    def __init__(self, trans_number, letter, command):
+        
+        # number = Transaction number 
+        # letter = field being affected
+        # command = what is done to the field
+        # Ex: R1(A)    Read(A) in Transaction 1
+        
         self.number = trans_number
         self.letter = letter
-        self.action = action
-        
-    def has_conflict(self, transaction2):
-        if self.number == transaction2.number:
+        self.command = command
+    
+    # There is conflict if:
+    # 1. We have ast least one Write
+    # 2. Dont belong to the same transaction
+    # 3. The letter inside the parentheses is the same
+    def has_conflict(self, action2):
+        if self.number == action2.number:
             return False
         
-        if self.letter != transaction2.letter:
+        if self.letter != action2.letter:
             return False
         
-        if self.action == 'r' and transaction2.action == 'r':
+        if self.action == 'r' and action2.action == 'r':
             return False
         
         return True
@@ -19,30 +30,39 @@ class Transaction:
     def stringify(self):
         return str(self.action+self.number+'('+self.letter+')')
     
+# Parse user input
+action_string = input('Enter commands divided by ;')
+action_string = action_string.replace(' ', '')
+actions = action_string.split(';')
+actions_list = []
 
-transaction_string = input('Enter transactions divided by ;')
-transaction_string = transaction_string.replace(' ', '')
-transactions = transaction_string.split(';')
-transactions_list = []
-
-for transaction in transactions:
-    action = transaction[0]
-    number = transaction[1]
-    letter = transaction[3]
-    trans_object = Transaction(number, letter, action)
-    transactions_list.append(trans_object)
-
-
-for i in range(0, len(transactions_list)):
-    current_transaction = transactions_list[i]
-    print('Conflicts for '+current_transaction.stringify()+':')
+# Generate Action objects
+# (R1(A) for example)
+for action in actions:
     
-    if i == len(transactions_list) -1:
+    command = action[0]
+    number = action[1]
+    letter = action[3]
+    action_object = Action(number, letter, command)
+    actions_list.append(action_object)
+
+# Iterate through all actions
+for i in range(0, len(actions_list)):
+    current_action = actions_list[i]
+    print('Conflicts for '+current_action.stringify()+':')
+    
+    # If we reach the last action, ignore 
+    if i == len(actions_list) -1:
         break
     
-    for j in range(i+1, len(transactions_list)):
-        compare_transaction = transactions_list[j]
-        if current_transaction.has_conflict(compare_transaction):
-            print(current_transaction.stringify()+' -> '+ compare_transaction.stringify())
+    # Compare current action to all actions succeding it
+    # (i.e. We dont care about past actions)
+    for j in range(i+1, len(actions_list)):
+        
+        compare_action = actions_list[j]
+        
+        if current_action.has_conflict(compare_action):
+            
+            print(current_action.stringify()+' -> '+ compare_action.stringify())
     
     print('')
